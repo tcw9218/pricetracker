@@ -1,6 +1,6 @@
 import axios from "axios"
 import * as cheerio from 'cheerio'
-import { extractPrice } from "./utils"
+import { extractPrice } from "../utils"
 export const scrapeAmazonProduct = async (url: string) => {
     // curl --proxy brd.superproxy.io:22225 --proxy-user brd-customer-hl_ed471f95-zone-unblocker:wf1n83nrptkq -k https://lumtest.com/myip.json
     //BrightData Proxy
@@ -26,10 +26,33 @@ export const scrapeAmazonProduct = async (url: string) => {
         const title = $('#productTitle').text().trim()
         const parentdiv = $('#corePrice_feature_div')
         const targetSpan = parentdiv.find('span.a-price-whole')
-        const currentPrice = extractPrice(
-            targetSpan
-        )
-            console.log(title, currentPrice)
+        const currency = parentdiv.find('span.a-price-symbol').text()
+        const currentPrice = extractPrice(targetSpan)
+
+        const outOfStock = $('#availability').find('span.a-color-success').text().trim() !== '在庫あり。';
+        
+        const images = 
+            $('#imgBlkFront').attr('data-a-dynamic-image') || 
+            $('#landingImage').attr('data-a-dynamic-image') ||
+            '{}'
+        
+        const imageUrls = Object.keys(JSON.parse(images));
+        // const discountRate = $('.savingsPercentage').text().replace(/[-%]/g, "");
+
+        // console.log(title, symbol, currentPrice, outOfStock, imageUrls)
+
+        const data = {
+            url,
+            currency: currency || '￥',
+            image: imageUrls[0],
+            title,
+            currentPrice: Number(currentPrice),
+            priceHistory: [],
+            stars: 4.0,
+            isOutofStock: outOfStock,
+        }
+        
+        return data
     }catch(e: any){
         throw new Error(`Failed to Scrape product:${e.message}`)
     }
