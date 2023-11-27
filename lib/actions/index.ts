@@ -1,5 +1,6 @@
 "use server"
-
+import { revalidatePath } from "next/cache"
+import { Product } from "../models/Product.model"
 import { scrapeAmazonProduct } from "../scraper"
 import { connectToDB } from "../scraper/mongoose"
 
@@ -9,13 +10,36 @@ export const scrapeAndStoreProduct = async(productUrl: string) => {
     try{
         connectToDB()
 
-        const scrapedProducts = await scrapeAmazonProduct(productUrl)
+        const scrapedProduct = await scrapeAmazonProduct(productUrl)
 
-        if(!scrapedProducts) return
+        if(!scrapedProduct) return
 
         //Store
+        let product = scrapedProduct
+        const existingProduct = await Product.findOne({
+            url: scrapedProduct.url
+        })
+        if (existingProduct) {
+            const updatePriceHistory: any = [
+                ...existingProduct.priceHistory,
+                { price: scrapedProduct.currentPrice }
+            ]
 
-    }catch(e: any){
+            product =  {
+                ...scrapedProduct,
+                priceHistory: updatePriceHistory,
+            }
+        }
+
+        const newProduct = await Product.findOneAndUpdate(
+            {url: scrapedProduct.url},
+            product,
+            { upsert: true, new: true }
+        )
+
+      revalidatePath(`/products/${newProduct._id}`)
+
+    } catch (e: any){
         throw new Error(`Failed to store product:${e.message}`)
     }
 }
