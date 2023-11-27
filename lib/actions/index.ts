@@ -1,6 +1,7 @@
 "use server"
 
 import { scrapeAmazonProduct } from "../scraper"
+import { connectToDB } from "../scraper/mongoose"
 
 export const scrapeAndStoreProduct = async(productUrl: string) => {
     if ( !productUrl ) return
