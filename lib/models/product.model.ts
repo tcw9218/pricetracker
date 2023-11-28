@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+
 const productSchema = new mongoose.Schema({
     url: { type: String, require: true, unique: true },
     currency: { type: String, require: true },

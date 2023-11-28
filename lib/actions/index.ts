@@ -1,10 +1,10 @@
 "use server"
 import { revalidatePath } from "next/cache"
-import { Product } from "../models/Product.model"
+import { Product } from "../models/product.model"
 import { scrapeAmazonProduct } from "../scraper"
 import { connectToDB } from "../scraper/mongoose"
 
-export const scrapeAndStoreProduct = async(productUrl: string) => {
+export const scrapeAndStoreProduct = async (productUrl: string) => {
     if ( !productUrl ) return
 
     try{
@@ -41,5 +41,19 @@ export const scrapeAndStoreProduct = async(productUrl: string) => {
 
     } catch (e: any){
         throw new Error(`Failed to store product:${e.message}`)
+    }
+}
+
+export const getProductById = async (productId: string) => {
+    try {
+
+        connectToDB()
+
+        const product = await Product.findOne({_id: productId})
+        if(!product) return null
+
+        return product
+    } catch (e: any) {
+        throw new Error(`Failed to find product:${e.message}`)
     }
 }
