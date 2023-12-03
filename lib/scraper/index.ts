@@ -1,6 +1,7 @@
 import axios from "axios"
 import * as cheerio from 'cheerio'
 import { extractPrice } from "../utils"
+import { Product } from "@/types"
 export const scrapeAmazonProduct = async (url: string) => {
     // curl --proxy brd.superproxy.io:22225 --proxy-user brd-customer-hl_ed471f95-zone-unblocker:wf1n83nrptkq -k https://lumtest.com/myip.json
     //BrightData Proxy
@@ -9,15 +10,15 @@ export const scrapeAmazonProduct = async (url: string) => {
     const port = 22225
     const session_id = (100000 * Math.random()) | 0
 
-    const options = {
-        auth: {
-            username: `${username}-session-${session_id}`,
-            password,
-        },
-        host: "brd.superproxy.io",
-        port,
-        rejectUnauthorized: false,
-    }
+    // const options = {
+    //     auth: {
+    //         username: `${username}-session-${session_id}`,
+    //         password,
+    //     },
+    //     host: "brd.superproxy.io",
+    //     port,
+    //     rejectUnauthorized: false,
+    // }
 
     try{
         const response = await axios.get(url)
@@ -39,9 +40,9 @@ export const scrapeAmazonProduct = async (url: string) => {
         const imageUrls = Object.keys(JSON.parse(images));
         // const discountRate = $('.savingsPercentage').text().replace(/[-%]/g, "");
 
-        // console.log(title, symbol, currentPrice, outOfStock, imageUrls)
+      
 
-        const data = {
+        const data: Product = {
             url,
             currency: currency || '￥',
             image: imageUrls[0],
@@ -53,6 +54,7 @@ export const scrapeAmazonProduct = async (url: string) => {
         }
         
         return data
+        
     }catch(e: any){
         throw new Error(`Failed to Scrape product:${e.message}`)
     }

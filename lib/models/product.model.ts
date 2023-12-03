@@ -5,7 +5,7 @@ const productSchema = new mongoose.Schema({
     currency: { type: String, require: true },
     image:  { type: String, require: true },
     title:  { type: String, require: true },
-    currenctPrice:  { type: Number, require: true },
+    currentPrice:  { type: Number, require: true },
     priceHistory: [
         {
             price:  { type: Number, require: true },
@@ -14,9 +14,8 @@ const productSchema = new mongoose.Schema({
     ],
     isOutOfStock:  { type: Boolean, default: false },
     users: [
-        {email:  { type: String, require: true },
-        }
-    ], default: [],
+            { email:  { type: String, require: true } }
+        ], default: [],
 
 }, {timestamps: true})
 

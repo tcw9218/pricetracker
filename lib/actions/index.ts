@@ -36,8 +36,8 @@ export const scrapeAndStoreProduct = async (productUrl: string) => {
             product,
             { upsert: true, new: true }
         )
-
-      revalidatePath(`/products/${newProduct._id}`)
+        console.log('NEWPRODUCT', product, newProduct)
+        revalidatePath(`/products/${newProduct._id}`)
 
     } catch (e: any){
         throw new Error(`Failed to store product:${e.message}`)
@@ -55,5 +55,20 @@ export const getProductById = async (productId: string) => {
         return product
     } catch (e: any) {
         throw new Error(`Failed to find product:${e.message}`)
+    }
+}
+
+export const getAllProducts = async () => {
+    try {
+
+        connectToDB()
+
+        const products = await Product.find()
+        console.log(products)
+        if(!products) return null
+
+        return products
+    } catch (e: any) {
+        throw new Error(`Failed to All product:${e.message}`)
     }
 }
